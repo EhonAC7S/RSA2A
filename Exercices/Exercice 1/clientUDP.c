@@ -97,13 +97,13 @@ int main (int argc, char *argv[])
  if ( (n= sendto (serverSocket, data, strlen(data),0, 
       (struct sockaddr *)&serv_addr, sizeof(serv_addr)
 		  )) != strlen(data))  {
-   perror ("erreur sendto");
+   perror ("erreur sendto 1");
    exit (1);
  }
 
  if ( (n= recvfrom (serverSocket, sendbuf, sizeof(sendbuf)-1,0, 
    (struct sockaddr *)&serv_addr, &len)) != strlen(data) )  {
-   printf ("erreur sendto");
+   printf ("erreur sendto 2");
    exit (1);
  }
  
