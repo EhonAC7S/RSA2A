@@ -17,6 +17,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
+
 
 int serverSocket, clientSocket; /* declaration socket passive et socket active */
 
@@ -35,7 +37,8 @@ void sig_urg(int sig)
   printf ("read %d OOB octets %s\n", n,buff);
 }
 
-usage(){
+usage()
+{
   printf("usage : servecho numero_port_serveur\n");
 }
 
@@ -49,16 +52,18 @@ int main (int argc, char *argv[])
   struct sockaddr_in  serv_addr, cli_addr;
   char buff[2048];
   socklen_t optionlen;
-
+  
   /* Verifier le nombre de paramètre en entrée */
   /* serverTCP <numero_port>                   */ 
-  if (argc != 2){
+  if (argc != 2)
+  {
     usage();
     exit(1);
   }
 
   // Ouvrir une socket (a TCP socket)
-  if ((serverSocket = socket(PF_INET, SOCK_STREAM, 0)) <0) {
+  if ((serverSocket = socket(PF_INET, SOCK_STREAM, 0)) <0) 
+  {
    perror("servecho : Probleme socket\n");
    exit (2);
   }
@@ -69,14 +74,15 @@ int main (int argc, char *argv[])
   serv_addr.sin_addr.s_addr = htonl (INADDR_ANY);
   serv_addr.sin_port = htons(atoi(argv[1]));
 
-  if (bind(serverSocket,(struct sockaddr *)&serv_addr, sizeof(serv_addr) ) <0) {
+  if (bind(serverSocket,(struct sockaddr *)&serv_addr, sizeof(serv_addr) ) <0) 
+  {
    perror ("servecho: erreur bind\n");
    exit (1);
   }
  
   // Obtenir taille buffer de reception
   // A COMPLETER
-
+  size = sizeof buff / (sizeof(char));
   printf (" la taille du buffer de reception est de %d \n", size);
 
 
@@ -98,22 +104,49 @@ int main (int argc, char *argv[])
 
   // Armer le signal SIGUR avec comme handler sig_urg
   // A COMPLETER
-
+  action.sa_handler = sig_urg;
+  sigemptyset((&action.sa_mask));
+  action.sa_flags = 0;
+  sigaction(SIGURG,&action,NULL);
+  printf("servecho : signal urgent armé\n");
 
  
   // Demander au systeme d'envoyer le signal au proprietaire de la socket
   // A COMPLETER
-
-
+  
+  if (fcntl(clientSocket, F_SETOWN, getpid()) < 0) 
+  {
+    perror("fctl(F_SETOWN)");
+  }
+  
   for (;;)
+  {
+    // Reception des donnees non urgents. Si Fin de connexion ou erreur  
+    // sortir du serveur
+    // Attention au traitement de l'erreur EINTR
+    // A COMPLETER
+    memset((char *)buff,(char)0,2048); // raz buffer
+    if(n=recv(clientSocket,buff,sizeof(buff),0) > 0)
     {
-      // Reception des donnees non urgents. Si Fin de connexion ou erreur  
-      // sortir du serveur
-      // Attention au traitement de l'erreur EINTR
-      // A COMPLETER
-
-
+      if(write(1,buff,n)!=n) 
+      {
+        perror("write error");
+      }
+    }else
+    {
+      if(n<0)
+      {
+        if(errno==EINTR)
+        {
+          perror("read error with EINTR");
+        }
+      }else
+      {
+        if(n==0)
+        {
+          exit(0);    
+        }
+      }
     }
-
-
+  }
 }
