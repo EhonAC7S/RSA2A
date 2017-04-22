@@ -48,11 +48,11 @@ int main (int argc, char *argv[])
   struct icmp *icmp;
   struct udphdr *udp;
 
-  /* On prendra les otpions PF_INET, SOCK_RAW, IPPROTO_UDP pour le socket, car elles
+  /* On prendra les otpions PF_INET, SOCK_RAW, IPPROTO_ICMP pour le socket, car elles
    * semblent adaptées au raw. De plus necessaire pour obtenir le IP header et le UDP header
    */
 
-  if ((rawSocket = socket(PF_INET, SOCK_RAW, IPPROTO_UDP)) <0) 
+  if ((rawSocket = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP)) <0) 
   { //----------//
     perror ("erreur socket");
     exit (1); 
