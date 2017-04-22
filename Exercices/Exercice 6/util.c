@@ -64,7 +64,7 @@ int readn (int  fd, char *ptr, int maxlen)
     nleft -= nreadn;
     ptr += nreadn;
   }
-  return (maxlen - nleft);
+  return (maxlen - nleft);  
 }
 
 /*

@@ -73,13 +73,13 @@ int main (int argc, char *argv[])
       exit (1); 
     }
     printf( "%d octets ICMP de %s: \n", n, source);
-    rcvbuffer[n] = '\0';
-    printf("message : %s\n", rcvbuffer);
+    //rcvbuffer[n] = '\0';
+    //printf("message : %s\n", rcvbuffer);
     ip =  (struct ip*) rcvbuffer ; //-------------------------// debut entete IP
     lenIPHeader = ip->ip_hl * 4 ; //---------// ip->ip_hl longueur  en mot de 32 bits 
-    printf("header 1 : %d\n", lenIPHeader);
+    //printf("header 1 : %d\n", lenIPHeader);
     icmp =  (struct icmp*) (rcvbuffer + lenIPHeader); //---------------// debut entete ICMP
-    ip2 =  &(icmp->icmp_ip); //----------------// debut en-tete IP contenu dans ICMP
+    ip2 =  (struct ip *) (rcvbuffer + lenIPHeader + 8); //----------------// debut en-tete IP contenu dans ICMP
     lenIPHeader2 = ip2->ip_hl * 4 ;//--------// longueur  en-tete IP
     printf("header 2 : %d\n", lenIPHeader2); 
     printf("protocole : %d\n", ip2->ip_p);   

@@ -25,6 +25,37 @@
 #include      <stdlib.h>
 
 #define MAXLINE 80
+
+
+int readline (int  fd, char *ptr, int maxlen)
+{
+  
+  int n, rc, retvalue, encore=1;  char c, *tmpptr; 
+
+  tmpptr=ptr;
+  for (n=1; (n < maxlen) && (encore) ; n++) {
+    if ( (rc = read (fd, &c, 1)) ==1) {
+      *tmpptr++ =c; 
+      if (c == '\n')  /* fin de ligne atteinte */
+  {encore =0; retvalue = n;}
+    }
+    else if (rc ==0) {  /* plus rien à lire */
+      encore = 0;
+      if (n==1) retvalue = 0;  /* rien a été lu */
+      else retvalue = n;
+    }
+    else { /*rc <0 */
+      if (errno != EINTR) {
+  encore = 0;
+  retvalue = -1;
+      }
+    }
+  }
+  *tmpptr = '\0';  /* pour terminer la ligne */
+  return (retvalue);
+}
+
+
 usage(){
   printf("usage : cliecho adresseIP_serveur(x.x.x.x)  numero_port_serveur\n");
 }
