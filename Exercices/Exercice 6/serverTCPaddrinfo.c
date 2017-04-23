@@ -20,15 +20,67 @@
  *     write()                                                       *
  *                                                                   *
  *********************************************************************/
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include      <sys/types.h>
+#include      <sys/socket.h>
+#include      <netinet/in.h>
+#include      <arpa/inet.h>
+#include      <stdio.h>
+#include      <string.h>
+#include      <netdb.h>
+#include      <stdlib.h>
+#include      <string.h>
 
 #define MAXLINE 80
+
+int writen (int  fd, char *ptr, int nbytes)
+{
+  int nleft, nwritten; 
+
+  nleft = nbytes;
+  while (nleft >0) {
+    nwritten = write (fd,ptr, nleft);
+    if (nwritten <=0) {
+      if(errno == EINTR)
+    nwritten=0;
+      else{
+    perror("probleme  dans write\n");
+    return(-1);
+      }
+    }
+    nleft -= nwritten;
+    ptr += nwritten;
+  }
+  return (nbytes);
+}
+
+int readline (int  fd, char *ptr, int maxlen)
+{
+  
+  int n, rc, retvalue, encore=1;  char c, *tmpptr; 
+
+  tmpptr=ptr;
+  for (n=1; (n < maxlen) && (encore) ; n++) {
+    if ( (rc = read (fd, &c, 1)) ==1) {
+      *tmpptr++ =c; 
+      if (c == '\n')  /* fin de ligne atteinte */
+    {
+      encore =0; retvalue = n;
+    }
+    }else if (rc ==0) {  /* plus rien à lire */
+      encore = 0;
+      if (n==1) retvalue = 0;  /* rien a été lu */
+      else retvalue = n;
+    }
+    else { /*rc <0 */
+      if (errno != EINTR) {
+    encore = 0;
+    retvalue = -1;
+      }
+    }
+  }
+  *tmpptr = '\0';  /* pour terminer la ligne */
+  return (retvalue);
+}
 
 usage(){
   printf("usage : servecho numero_port_serveur\n");
@@ -42,10 +94,11 @@ int main (int argc, char *argv[])
 
   int n, retread, childpid;
   socklen_t clilen;
-  struct sockaddr_in6  serv_addr, cli_addr; //Changement ici 
-    char fromClient[MAXLINE];
+  struct sockaddr_in6  serv_addr, cli_addr; //Changement ici   
+  char fromClient[MAXLINE];
   char fromUser[MAXLINE];
-
+  struct addrinfo *res,
+  struct addrinfo base;
   /* Verifier le nombre de paramètre en entrée */
   /* serverTCP <numero_port>                   */ 
   if (argc != 2){
@@ -53,22 +106,24 @@ int main (int argc, char *argv[])
     exit(1);
   }
 
+  memset(&base, 0, sizeof(base));
+  base.ai_flags = AI_PASSIVE;
+  base.ai_socktype = SOCK_STREAM;
+  base.ai_family = PF_INET6;
+
+  //node à NULL = un socket de serveur
+  
+  if(getaddrinfo(NULL, argv[1], &base, &res)){ //On récupère les infos que l'on veut dans res avec le bon protocole/famille/etc...
+    perror("Erreur dans le getaddreinfo);
+    exit(1);
+  }
    /*
    * Ouvrir une socket (a TCP socket)
    */
-  if ((serverSocket = socket(AF_INET6, SOCK_STREAM, 0)) <0) { //Changement ici
+  if ((serverSocket = socket(res.ai_family, res.ai_socktype, res.ai_protocol)) <0) { 
    perror("servecho : Probleme socket\n");
    exit (2);
   }
-
-  /*
-   * Lier l'adresse  locale à la socket
-   */
-  memset( (char*) &serv_addr,0, sizeof(serv_addr) );
-  serv_addr.sin6_family = PF_INET6; //Changement ici
-  serv_addr.sin6_addr.s_addr = htonl (INADDR_ANY); //Changement ici
-  serv_addr.sin6_port = htons(atoi(argv[1])); //Changement ici
-
  
   if (bind(serverSocket,(struct sockaddr *)&serv_addr, sizeof(serv_addr) ) <0) {
    perror ("servecho: erreur bind\n");
