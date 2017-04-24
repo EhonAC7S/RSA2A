@@ -30,10 +30,11 @@ int beginWithDoubleBar(char* line) {
 }
 
 
-int starExprCase(char* chaine, char * line2, char * strArray[]) {
+int starExprCase(char* chaine, char * line2) {
 	char * token = NULL;
 	int returnValue;	
 	int k = 0;
+	char * strArray[10];
 	//Si la ligne contient des étoiles 
 	if(strchr(line2, '*')!=NULL)
 	{
@@ -70,6 +71,7 @@ int starExprCase(char* chaine, char * line2, char * strArray[]) {
 		strcpy(strArray[0], line2);
 		if (contient(chaine, strArray,1))
 		{
+			//printf("à reconnaitre  : %s\n", line2);
 			printf("Motif reconnu\n");
 			returnValue = 1;	// On a trouvé ce motif dans chaine
 		}else
@@ -87,14 +89,14 @@ int main(int argc, char **argv){
 	infile = fopen("MignonnesExceptions.txt", "r");
 	char * line = NULL;
 	char * line2 = NULL;
-	char * strArray[10];
-    char * chaine = "http://lel.com/quisoirhgveutsrbdesvsrchats"; //La chaine dans laquelle on cherche à reconnaitre les motifs
+    char * chaine = "http://lel.com/quisoibonbonbonrhgveutsrbdesvsbonjourrchats/nope"; //La chaine dans laquelle on cherche à reconnaitre les motifs
     size_t len = 0;
     ssize_t read;
     char* httpCST = "http://";
     char* httpsCST = "https://";
     char* httpVAR; 
     char* httpsVAR;
+    char* token;
 
 	if (infile == NULL) 
 	{
@@ -107,23 +109,32 @@ int main(int argc, char **argv){
 		//On commence à lire le fichier d'exception.
 		while(((read = getline(&line, &len, infile)) != -1))
 		{
+			line2 = calloc(1,strlen(line)-1);
+			strncpy(line2, line, strlen(line)-1);
+			if(strchr(line2, '$')!=NULL) 
+			{ // Pour simplifier nous ignorerons les options qui sont dans une règle de rejet où d'exception de rejet, nous reviendrons plupart si le temps nous le permet sur la gestion des options
+				strtok(line2, "$"); // Si on voit un '$', on met un '\0' pour bloquer la lecture de la suite, on ignore donc facilement les options
+			}
+
+
 			if (beginWithDoubleBar(line)) {
 				
-				httpVAR = calloc(1,strlen(line)+6); //line dont on retire '/n' a la fin et +7 pour "http://" donc +6
+				httpVAR = calloc(1,strlen(httpCST)); //line dont on retire '/n' a la fin et +7 pour "http://" donc +6
 				strcat(httpVAR, httpCST);
 				strcat(httpVAR, line+2);
-				printf("%s\n", httpVAR);
-				httpsVAR = calloc(1,strlen(line)+7);
+				*(httpVAR+strlen(httpVAR)-1) = '\0';
+				httpsVAR = calloc(1,strlen(httpsCST));
 				strcat(httpsVAR, httpsCST);
 				strcat(httpsVAR, line+2);
-				starExprCase(chaine, httpVAR,strArray); 
-				starExprCase(chaine, httpsVAR,strArray);
+				*(httpsVAR+strlen(httpsVAR)-1) = '\0';
+				starExprCase(chaine, httpVAR); 
+				starExprCase(chaine, httpsVAR);
+				//free(httpVAR);
+				//free(httpsVAR);
 			}
 
 			else {
-				line2 = calloc(1,strlen(line)-1);
-				strncpy(line2, line, strlen(line)-1);
-				starExprCase(chaine, line2, strArray);
+				starExprCase(chaine, line2);
 			}
 			
 		}		

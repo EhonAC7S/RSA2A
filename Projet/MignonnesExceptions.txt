@@ -14,3 +14,6 @@ bonjour
 lel
 chat
 ||le
+||bonjour.com
+||lel.com/*/nope
+bonjours$third-party , image , document
