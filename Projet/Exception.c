@@ -2,26 +2,83 @@
 #include <string.h>
 #include <stdlib.h>
 
+int contient(char * chaine, char * strArray[], int i){
+    int resultat = 0;
+	char * ret;
+	for (int j=0;j<i;j++){
+		if((ret = strstr(chaine, strArray[j])) != NULL){
+			resultat++;
+			chaine = ret;
+		}
+	}if (resultat == i){
+		return 1;
+	}else{
+		return -1;
+	}
+}
+
+
+
 int main(int argc, char **argv){
 	FILE *infile;
-	infile = fopen("exception.txt", "r");
+	infile = fopen("Exception.txt", "r");
 	char * line = NULL;
+	char * line2 = NULL;
+	char * strArray[10];
+    char * chaine = "quiveutdeschat";
+	char * token = NULL;
     size_t len = 0;
     ssize_t read;
+    
 	if (infile == NULL) {
-		printf("Unable to open file.\n"); 
+		printf("Erreur à l'ouverture du fichier.\n"); 
+	
 	}else{
 		printf("Fichier ouvert avec succès.\n");
-		while((read = getline(&line, &len, infile)) != -1){
-			char * line2 = malloc(strlen(line)-2);
+		
+		//On commence à lire le fichier d'exception.
+		while(((read = getline(&line, &len, infile)) != -1)){
+			//on retire le \n de la ligne lue.
+			line2 = calloc(1,strlen(line)-2);
 			strncpy(line2, line, strlen(line)-2);
-			if (strstr("vroum&ad_classid=vroum", line2) != NULL){
-				printf("Je sais lire !\n");				
-				fclose(infile);
-				return 0;
-			}		
+			
+			//Si la ligne contient des étoiles 
+			if(strchr(line, '*')!=NULL){
+				int i = 0;
+				token = strtok(line2, "*");
+				while( token != NULL) {
+					printf("%s\n", token );
+					strArray[i] = malloc(strlen(token));
+					strcpy(strArray[i], token);
+					token = strtok(NULL, "*");
+					i++;
+				}
+				free(line2);
+			
+				if (contient(chaine, strArray,i)){
+					printf("it works\n");
+				}
+			
+			//free de notre tableau de string 
+				for (int j=0;j<i;j++){
+					free(strArray[j]);
+				}
+			}			
 		}		
 		fclose(infile);
 	}
 	return 0;
 }
+
+
+			
+			//on ne lit pas les commentaires
+				/*else{
+					printf("Bloqué %s %s\n",line, chaine);				
+					fclose(infile);
+					free(line2);
+					return 0;
+			else if(strncmp(line,"@@",2)==0){
+				printf("%s\n",line);
+				}
+				}*/		
