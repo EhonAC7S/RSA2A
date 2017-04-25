@@ -21,6 +21,6 @@ void searchTypeRequest(char entete [], char type[]);
 void searchHostName(char entete[], char hostname[]);
 void searchRequest(char entete[], char requete[]);
 void showMyIp(struct addrinfo *res, const char *port);
-//void searchURL(char entete[], char uRL[]);
+void searchURL(char entete[], char URL[]);
 
 #endif

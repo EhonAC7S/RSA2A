@@ -10,15 +10,15 @@ int main(int argc, char const *argv[])
 	int serverSocketIPv6;
 	int clientSocket = -1;
 	int webSocket = -1;
+	char URL[500];
 	int rd;
 	char requete[MAXREQUEST], type_requete[MAXENTETE], hostname[MAXHOST];
-	char uRL[MAXREQUEST];
 	char response[MAXRESPONSE];
 	fd_set init_set, desc_set;
 	int maxfd, nbfd;
 	char portSortie[] = "80";
-	//char* responseForAds = "PUB will not be displayed";
-	//int lenResForAds = strlen(responseForAds);
+	char* responseForAds = "PUB will not be displayed";
+	int lenResForAds = strlen(responseForAds);
 	
 	if(argc != 2){
 		usage();
@@ -157,13 +157,14 @@ int main(int argc, char const *argv[])
 				if(strcmp(type_requete, "GET") == 0)
 				{
 					searchHostName(requete, hostname);
-					//searchURL(requete, uRL);
+					searchURL(requete, URL);
+					printf("Requete URL : %s\n", URL);	
 					printf("Hostname desire : %s\n", hostname);
-					printf("Requete complete : \n%s\n", requete);
+					printf("Requete complete : \n%s\n", requete);								
 					// On a deux cas : soit la requete à envoyer est une requete vers un site dont on ne veut pas les infos (succeptible de transmettre de la pub)
 					// Soit c'est un site de confiance et le proxy laisse la demande se faire au serveur Web.
-					searchPatternIn(hostname);
-					/*if (searchPatternIn(hostname)) 
+					searchPatternIn(URL);
+					/*if (searchPatternIn(URL)) 
 					{
 						send(clientSocket, responseForAds, lenResForAds, 0);
 					} else

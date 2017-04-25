@@ -15,6 +15,21 @@ void searchTypeRequest(char entete [], char type[]){
   }
 }
 
+void searchURL(char entete[], char URL[]){
+  int i = 0;
+  while(entete[i] != ' '){
+	  i++;
+	  }
+  int newi = i+1; 
+  int url = 0;   
+  
+  while(entete[newi] != ' '){
+    URL[url++] = entete[newi];
+    newi++;
+  }
+  URL[url]='\0';
+}
+
 void searchHostName(char entete[], char hostname[]){
   int i=0;
   int https = 0;
