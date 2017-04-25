@@ -14,6 +14,6 @@ Jordan Cesaro
 Entrer 'make' afin de compiler le projet, puis './proxy_multiclient 1500' pour utiliser le port 1500.
 
 ```
-### Accès OneNote : 
+Accès OneNote : 
 https://onedrive.live.com/edit.aspx?resid=A085BFA871068A70!2750&cid=a085bfa871068a70&app=OneNote
 ```
