@@ -156,7 +156,7 @@ int main(int argc, char const *argv[])
 					printf("Requete complete : \n%s\n", requete);
 
 					//On crée la socket de dialogue avec le serveur web
-					char service[] = PORT;
+					char service[] = "80";
 					webSocket = createWebSocket(hostname, service);
 
 					if(webSocket >= maxfd) 

@@ -86,7 +86,7 @@ int starExprCase(char* chaine, char * line2)
 
 int isAnException(char* line) 
 {
-	if (line == '@' && line == '@') 
+	if (*line == '@' && *(line+1) == '@') 
 	{
 		line = line + 2; //On fait deja le décalage
 		return 1; //c'est une exceptions à la liste de rejet
@@ -108,9 +108,9 @@ int main(int argc, char **argv){
     char* httpVAR; 
     char* httpsVAR;
     char* token;
-    isException = 0;
-    isRejet = 0;
-
+    int isException = 0;
+    int isRejet = 0;
+    int foundIn = 0;
 	if (infile == NULL) 
 	{
 		printf("Erreur à l'ouverture du fichier.\n"); 
@@ -123,7 +123,7 @@ int main(int argc, char **argv){
 		while(((read = getline(&line, &len, infile)) != -1))
 		{
 			isException = 0;
-			isRejet
+			foundIn = 0;
 			line2 = calloc(1,strlen(line)-1);
 			strncpy(line2, line, strlen(line)-1);
 			if(strchr(line2, '$')!=NULL) 
@@ -132,26 +132,30 @@ int main(int argc, char **argv){
 			}
 			if (isAnException(line2)) 
 			{
+				line2 = line2 + 2*sizeof(char);
 				isException = 1;
 			}
 
-			if (beginWithDoubleBar(line)) 
+			if (beginWithDoubleBar(line2)) 
 			{
 				httpVAR = calloc(1,strlen(httpCST)); //On construit les 2 char* contenant http:// et https:// au début de 'line2'
 				strcat(httpVAR, httpCST);
-				strcat(httpVAR, line+2);
-				*(httpVAR+strlen(httpVAR)-1) = '\0'; //On vire les '\n' parce que sinon on reconnaitra rien
+				strcat(httpVAR, line2+2);
+				*(httpVAR+strlen(httpVAR)) = '\0'; //On vire les '\n' parce que sinon on reconnaitra rien
 				httpsVAR = calloc(1,strlen(httpsCST));
 				strcat(httpsVAR, httpsCST);
 				strcat(httpsVAR, line+2);
 				*(httpsVAR+strlen(httpsVAR)-1) = '\0';
+				//printf("%s\n", httpVAR);
 				if (starExprCase(chaine, httpVAR))
 				{
-				 	isRejet = 1; //Si on trouve cette expression (starExprCase renvoie 1 si on reconnait #1 dans #0), alors on signal que le motif doit être rejeté
+				 	foundIn = 1; //Si on trouve cette expression (starExprCase renvoie 1 si on reconnait #1 dans #0), alors on signal que le motif doit être rejeté
+				 	isRejet = 1;
 				} 
 				if (starExprCase(chaine, httpsVAR))
 				{
-				 	isRejet = 1; //Si on trouve cette expression (starExprCase renvoie 1 si on reconnait #1 dans #0), alors on signal que le motif doit être rejeté
+				 	foundIn = 1; //Si on trouve cette expression (starExprCase renvoie 1 si on reconnait #1 dans #0), alors on signal que le motif doit être rejeté
+				 	isRejet = 1;
 				} 
 				//free(httpVAR);
 				//free(httpsVAR);
@@ -160,21 +164,27 @@ int main(int argc, char **argv){
 			else {
 				if (starExprCase(chaine, line2))
 				{
+				 	foundIn = 1;
 				 	isRejet = 1;
 				} 
 			}
-			/*
-			if (isRejet) 
+			
+			if (isException) 
 			{
-				fclose(infile);
-				return isRejet - isException; // Si le motif est reconnu, isRejet est à 1, si le motif etait une exception de rejet, isException est à 1, sinon 0
-				//
+				if (isRejet) 
+				{
+					fclose(infile);
+					printf("0\n");
+					return 0; //On sait qu'on a une règle d'exception de rejet trouvée dans 'chaine', on a pas besoin de chercher plus loin
+				}
+				
 			}
-			*/
+			
 		}		
 		fclose(infile);
 	}
-	return 0; //On a trouvé aucun motif parmis la liste à priorie
+	printf("%d\n", isRejet);
+	return isRejet; //Si on arrive ici c'est qu'on a pas trouvé d'exception de rejet, donc on renvoie si on a rencontré un rejet au moins une seule fois.
 }
 
 
