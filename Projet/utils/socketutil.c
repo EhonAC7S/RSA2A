@@ -44,20 +44,27 @@ void initServer(struct addrinfo **res, const char *num_port){
 	}
 }
 
-int openServer(int serverSocket4, int serverSocket6){
-	if (listen(serverSocket4, SOMAXCONN) <0) {
-		perror ("Erreur dans le listen sur la socket IPv4\n");
+int openServer(int serverSocketIPv4, int serverSocketIPv6){
+	if (listen(serverSocketIPv6, SOMAXCONN) <0) {
+		perror ("Erreur listen IPv6\n");
 		exit (4);
 	}
-	if (listen(serverSocket6, SOMAXCONN) <0) {
-		perror ("Erreur dans le listen sur la socket IPv6\n");
+	if (listen(serverSocketIPv4, SOMAXCONN) <0) {
+		perror ("Erreur listen IPv4\n");
 		exit (4);
 	}
-	// On renvoie un descripteur entier supérieur au deux du serveur
-	return (serverSocket4 < serverSocket6) ? serverSocket6 + 1 : serverSocket4 + 1;
+	
+	if (serverSocket4 < serverSocket6)
+	{
+		return serverSocket6 + 1;
+	} else 
+	{
+		return serverSocket4 + 1;
+	}
+	
 }
 
-int createWebSocket(char hostname[], char service[]){
+int createWebSocket(char hostname[], char portSortie[]){
 	//Pour gérer getaddrinfo
 	int err_code;
 	struct addrinfo *res, criteres;
@@ -72,7 +79,7 @@ int createWebSocket(char hostname[], char service[]){
 	//On veut tout prendre : IPv4 et IPv6
 	criteres.ai_family = AF_UNSPEC;
 
-	err_code = getaddrinfo(hostname, service, &criteres, &res);
+	err_code = getaddrinfo(hostname, portSortie, &criteres, &res);
 	if(err_code){
 		fprintf(stderr, "Erreur dans le getaddreinfo : %s\n", gai_strerror(err_code));
 		exit(1);
