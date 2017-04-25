@@ -1,6 +1,7 @@
 
 #include "utils/socketutil.h"
 #include "utils/util.h"
+#include "utils/patternSearch.h"
 
 int main(int argc, char const *argv[])
 {
@@ -11,11 +12,13 @@ int main(int argc, char const *argv[])
 	int webSocket = -1;
 	int rd;
 	char requete[MAXREQUEST], type_requete[MAXENTETE], hostname[MAXHOST];
+	char uRL[MAXREQUEST];
 	char response[MAXRESPONSE];
 	fd_set init_set, desc_set;
 	int maxfd, nbfd;
 	char portSortie[] = "80";
-	char responseForAds = "PUB will not be displayed";
+	//char* responseForAds = "PUB will not be displayed";
+	//int lenResForAds = strlen(responseForAds);
 	
 	if(argc != 2){
 		usage();
@@ -154,25 +157,32 @@ int main(int argc, char const *argv[])
 				if(strcmp(type_requete, "GET") == 0)
 				{
 					searchHostName(requete, hostname);
+					//searchURL(requete, uRL);
 					printf("Hostname desire : %s\n", hostname);
 					printf("Requete complete : \n%s\n", requete);
-
-					//On crée la socket de dialogue avec le serveur web
-					
-					webSocket = createWebSocket(hostname, portSortie);
-
-					if(webSocket >= maxfd) 
+					// On a deux cas : soit la requete à envoyer est une requete vers un site dont on ne veut pas les infos (succeptible de transmettre de la pub)
+					// Soit c'est un site de confiance et le proxy laisse la demande se faire au serveur Web.
+					searchPatternIn(hostname);
+					/*if (searchPatternIn(hostname)) 
 					{
-						maxfd = webSocket +1;
-					}
+						send(clientSocket, responseForAds, lenResForAds, 0);
+					} else
+					{*/
+						//On crée la socket de dialogue avec le serveur web
+						webSocket = createWebSocket(hostname, portSortie);
 
-					FD_SET(webSocket, &init_set);
+						if(webSocket >= maxfd) 
+						{
+							maxfd = webSocket +1;
+						}
 
-					//Puis enfin on envoie la requête au serveur web
-					send(webSocket, requete, rd, 0);
+						FD_SET(webSocket, &init_set);
 
-					//On met la requete dans un fichier de log
-					
+						//Puis enfin on envoie la requête au serveur web
+						send(webSocket, requete, rd, 0);
+
+					//}
+									
 				}else if(strcmp(type_requete, "CLOSE"))
 				{
 					//On ferme la socket client

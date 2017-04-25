@@ -112,4 +112,10 @@ void addRequestLog(int socketClient, char type_req[], char request[]){
   }
 }
 
+//void searchURL(char entete[], char uRL[]) {
+
+
+//}
+
+
 

@@ -12,7 +12,7 @@
 #include <netdb.h>
 #include <stdio.h>
 
-#define MAXREQUEST 5000
+#define MAXREQUEST 50000
 #define MAXBUFF 1000
 #define MAXENTETE 50
 #define MAXHOST 100
