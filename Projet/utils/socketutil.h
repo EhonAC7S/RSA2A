@@ -12,12 +12,6 @@
 #include <netdb.h>
 #include <stdio.h>
 
-#define MAXREQUEST 50000
-#define MAXBUFF 1000
-#define MAXENTETE 50
-#define MAXHOST 100
-#define PORT 80
-#define MAXRESPONSE 1500
 
 int createSocket(struct addrinfo *res);
 int createWebSocket(char hostname[], char portSortie[]);

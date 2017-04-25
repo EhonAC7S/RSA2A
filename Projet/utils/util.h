@@ -16,11 +16,17 @@
 
 #include "socketutil.h"
 
+#define REQMAX 5000
+#define MAXBUFF 1000
+#define ENTETE 50
+#define MAXHOST 100
+#define REPMAX 1500
+
+void showMyIp(struct addrinfo *res, const char *port);
+void searchURL(char entete[], char URL[]);
 void usage();
 void searchTypeRequest(char entete [], char type[]);
 void searchHostName(char entete[], char hostname[]);
 void searchRequest(char entete[], char requete[]);
-void showMyIp(struct addrinfo *res, const char *port);
-void searchURL(char entete[], char URL[]);
 
 #endif
