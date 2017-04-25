@@ -17,6 +17,7 @@ int main(int argc, char const *argv[])
 	fd_set init_set, desc_set;
 	int maxfd, nbfd;
 	char portSortie[] = "80";
+	char* buffOK = "HTTP/1.0 200 OK \r\n\r\n";
 	
 	if(argc != 2){
 		usage();
@@ -161,10 +162,12 @@ int main(int argc, char const *argv[])
 					printf("Requete complete : \n%s\n", requete);								
 					// On a deux cas : soit la requete à envoyer est une requete vers un site dont on ne veut pas les infos (succeptible de transmettre de la pub)
 					// Soit c'est un site de confiance et le proxy laisse la demande se faire au serveur Web.
-					searchPatternIn(URL);
 					if (searchPatternIn(URL)) 
 					{
-						send(clientSocket, requete, rd, 0);
+						send(clientSocket,buffOK, strlen(buffOK), 0);
+						close(clientSocket);
+						FD_CLR(clientSocket, &init_set);
+						clientSocket = -1;
 					} else
 					{
 						//On crée la socket de dialogue avec le serveur web
@@ -179,7 +182,6 @@ int main(int argc, char const *argv[])
 
 						//Puis enfin on envoie la requête au serveur web
 						send(webSocket, requete, rd, 0);
-
 					}
 									
 				}else if(strcmp(type_requete, "CLOSE"))
