@@ -9,7 +9,7 @@ void searchTypeRequest(char entete [], char type[]){
 
   //On récupère la commande
   memset(type, 0, ENTETE);
-  while(entete[i] != ' ' && i < MAXENTETE){
+  while(entete[i] != ' ' && i < ENTETE){
     type[i] = entete[i];
     i++;
   }

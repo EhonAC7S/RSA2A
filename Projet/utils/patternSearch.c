@@ -99,7 +99,9 @@ int searchPatternIn(char* chaine){
 	if (infile == NULL) {
 		printf("Unable to open file.\n"); 
 	}else{
+
 		while((read = getline(&line, &len, infile)) != -1){
+			printf("%s\n", line);
 			char * line2 = malloc(strlen(line)-2);
 			strncpy(line2, line, strlen(line)-2);
 			if (strstr(chaine, line2) != NULL){

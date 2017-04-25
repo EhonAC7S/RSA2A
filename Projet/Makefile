@@ -1,4 +1,4 @@
-all: proxy_v1 proxy_multiclient proxy_https clear
+all: proxy_multiclient proxy_https clear
 
 ok: proxy_v1 clear
 
@@ -18,7 +18,7 @@ proxy_https.o:	proxy_https.c ./utils/*.h
 	gcc -Wall -c proxy_https.c ./utils/*.h
 
 proxy_multiclient.o:	proxy_multiclient.c ./utils/*.h
-	gcc -Wall -c proxy_multiclient.c ./utils/*.h
+	gcc -Wall  -c proxy_multiclient.c ./utils/*.h
 
 socketutil.o: socketutil.c utils/*.h
 	gcc -Wall -c socketutil.c utils/*.h
