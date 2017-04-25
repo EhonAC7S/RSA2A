@@ -5,7 +5,7 @@
 int main(int argc, char const *argv[])
 {
 	struct addrinfo *res = NULL;
-	int serverSocketIPv4
+	int serverSocketIPv4;
 	int serverSocketIPv6;
 	int clientSocket = -1;
 	int webSocket = -1;
@@ -14,6 +14,7 @@ int main(int argc, char const *argv[])
 	char response[MAXRESPONSE];
 	fd_set init_set, desc_set;
 	int maxfd, nbfd;
+	char portSortie[] = "80";
 	
 	if(argc != 2){
 		usage();
@@ -156,8 +157,8 @@ int main(int argc, char const *argv[])
 					printf("Requete complete : \n%s\n", requete);
 
 					//On crée la socket de dialogue avec le serveur web
-					char service[] = "80";
-					webSocket = createWebSocket(hostname, service);
+					
+					webSocket = createWebSocket(hostname, portSortie);
 
 					if(webSocket >= maxfd) 
 					{
@@ -170,9 +171,7 @@ int main(int argc, char const *argv[])
 					send(webSocket, requete, rd, 0);
 
 					//On met la requete dans un fichier de log
-					char request[150];
-					searchRequest(requete, request);
-					addRequestLog(clientSocket, type_requete, request);
+					
 				}else if(strcmp(type_requete, "CLOSE"))
 				{
 					//On ferme la socket client
