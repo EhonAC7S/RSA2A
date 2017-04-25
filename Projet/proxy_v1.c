@@ -17,8 +17,6 @@ int main(int argc, char const *argv[])
 	fd_set init_set, desc_set;
 	int maxfd, nbfd;
 	char portSortie[] = "80";
-	char* responseForAds = "PUB will not be displayed";
-	int lenResForAds = strlen(responseForAds);
 	
 	if(argc != 2){
 		usage();
@@ -164,11 +162,11 @@ int main(int argc, char const *argv[])
 					// On a deux cas : soit la requete à envoyer est une requete vers un site dont on ne veut pas les infos (succeptible de transmettre de la pub)
 					// Soit c'est un site de confiance et le proxy laisse la demande se faire au serveur Web.
 					searchPatternIn(URL);
-					/*if (searchPatternIn(URL)) 
+					if (searchPatternIn(URL)) 
 					{
-						send(clientSocket, responseForAds, lenResForAds, 0);
+						send(clientSocket, requete, rd, 0);
 					} else
-					{*/
+					{
 						//On crée la socket de dialogue avec le serveur web
 						webSocket = createWebSocket(hostname, portSortie);
 
@@ -182,7 +180,7 @@ int main(int argc, char const *argv[])
 						//Puis enfin on envoie la requête au serveur web
 						send(webSocket, requete, rd, 0);
 
-					//}
+					}
 									
 				}else if(strcmp(type_requete, "CLOSE"))
 				{
