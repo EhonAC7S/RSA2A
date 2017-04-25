@@ -15,6 +15,7 @@ int main(int argc, char const *argv[])
 	fd_set init_set, desc_set;
 	int maxfd, nbfd;
 	char portSortie[] = "80";
+	char responseForAds = "PUB will not be displayed";
 	
 	if(argc != 2){
 		usage();
