@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "patternSearch.h"
 
 int contient(char * chaine, char * strArray[], int i)
 {
@@ -55,7 +53,6 @@ int starExprCase(char* chaine, char * line2)
 		// On cherche si les éléments parsés se retrouvent dans chaine
 		if (contient(chaine, strArray,k))
 		{
-			//printf("Motif reconnu\n");
 			returnValue = 1; // On a trouvé ce motif dans chaine
 		}else
 		{
@@ -95,22 +92,22 @@ int isAnException(char* line)
 }
 
 
-int main(int argc, char **argv){
+int searchPatternIn(char* chaine){
+    char* token;
+    int isException = 0;
+    int isRejet = 0;
+    int foundIn = 0;
 	FILE *infile;
-	infile = fopen("MignonnesExceptions.txt", "r");
+	infile = fopen("rejectList", "r");
 	char * line = NULL;
 	char * line2 = NULL;
-    char * chaine = "http://lel.com/quisoibonbonbonrhgveutsrbdesvsbonjourrchats/nope"; //La chaine dans laquelle on cherche à reconnaitre les motifs
+    //char * chaine = "http://lel.com/quisoibonbonbonrhgveutsrbdesvsbonjourrchats/nope"; //La chaine dans laquelle on cherche à reconnaitre les motifs
     size_t len = 0;
     ssize_t read;
     char* httpCST = "http://";
     char* httpsCST = "https://";
     char* httpVAR; 
     char* httpsVAR;
-    char* token;
-    int isException = 0;
-    int isRejet = 0;
-    int foundIn = 0;
 	if (infile == NULL) 
 	{
 		printf("Erreur à l'ouverture du fichier.\n"); 
@@ -186,16 +183,3 @@ int main(int argc, char **argv){
 	printf("%d\n", isRejet);
 	return isRejet; //Si on arrive ici c'est qu'on a pas trouvé d'exception de rejet, donc on renvoie si on a rencontré un rejet au moins une seule fois.
 }
-
-
-			
-			//on ne lit pas les commentaires
-				/*else{
-					printf("Bloqué %s %s\n",line, chaine);				
-					fclose(infile);
-					free(line2);
-					return 0;
-			else if(strncmp(line,"@@",2)==0){
-				printf("%s\n",line);
-				}
-				}*/		
