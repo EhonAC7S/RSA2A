@@ -6,8 +6,7 @@ Proxy permettant la gestion multi-client et le blocage de publicités, il relaie
 
 ### Auteurs
 
-Justine Basselin
-Jordan Cesaro
+Justine Basselin & Jordan Cesaro en avril 2017
 
 ### Installation et execution
 
