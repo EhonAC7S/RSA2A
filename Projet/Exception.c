@@ -22,7 +22,8 @@ int contient(char * chaine, char * strArray[], int i)
 	}
 }
 
-int beginWithDoubleBar(char* line) {
+int beginWithDoubleBar(char* line) 
+{
 	if (*line == '|' && *(line+1) == '|') {
 		return 1;
 	}
@@ -30,7 +31,8 @@ int beginWithDoubleBar(char* line) {
 }
 
 
-int starExprCase(char* chaine, char * line2) {
+int starExprCase(char* chaine, char * line2) 
+{
 	char * token = NULL;
 	int returnValue;	
 	int k = 0;
@@ -53,7 +55,7 @@ int starExprCase(char* chaine, char * line2) {
 		// On cherche si les éléments parsés se retrouvent dans chaine
 		if (contient(chaine, strArray,k))
 		{
-			printf("Motif reconnu\n");
+			//printf("Motif reconnu\n");
 			returnValue = 1; // On a trouvé ce motif dans chaine
 		}else
 		{
@@ -71,8 +73,7 @@ int starExprCase(char* chaine, char * line2) {
 		strcpy(strArray[0], line2);
 		if (contient(chaine, strArray,1))
 		{
-			//printf("à reconnaitre  : %s\n", line2);
-			printf("Motif reconnu\n");
+			//printf("Motif reconnu\n");
 			returnValue = 1;	// On a trouvé ce motif dans chaine
 		}else
 		{
@@ -81,6 +82,16 @@ int starExprCase(char* chaine, char * line2) {
 		free(strArray[0]);
 		return returnValue;
 	}
+}
+
+int isAnException(char* line) 
+{
+	if (line == '@' && line == '@') 
+	{
+		line = line + 2; //On fait deja le décalage
+		return 1; //c'est une exceptions à la liste de rejet
+	}
+	return 0; //c'est une regle de rejet classique
 }
 
 
@@ -97,6 +108,8 @@ int main(int argc, char **argv){
     char* httpVAR; 
     char* httpsVAR;
     char* token;
+    isException = 0;
+    isRejet = 0;
 
 	if (infile == NULL) 
 	{
@@ -109,38 +122,59 @@ int main(int argc, char **argv){
 		//On commence à lire le fichier d'exception.
 		while(((read = getline(&line, &len, infile)) != -1))
 		{
+			isException = 0;
+			isRejet
 			line2 = calloc(1,strlen(line)-1);
 			strncpy(line2, line, strlen(line)-1);
 			if(strchr(line2, '$')!=NULL) 
 			{ // Pour simplifier nous ignorerons les options qui sont dans une règle de rejet où d'exception de rejet, nous reviendrons plupart si le temps nous le permet sur la gestion des options
 				strtok(line2, "$"); // Si on voit un '$', on met un '\0' pour bloquer la lecture de la suite, on ignore donc facilement les options
 			}
+			if (isAnException(line2)) 
+			{
+				isException = 1;
+			}
 
-
-			if (beginWithDoubleBar(line)) {
-				
-				httpVAR = calloc(1,strlen(httpCST)); //line dont on retire '/n' a la fin et +7 pour "http://" donc +6
+			if (beginWithDoubleBar(line)) 
+			{
+				httpVAR = calloc(1,strlen(httpCST)); //On construit les 2 char* contenant http:// et https:// au début de 'line2'
 				strcat(httpVAR, httpCST);
 				strcat(httpVAR, line+2);
-				*(httpVAR+strlen(httpVAR)-1) = '\0';
+				*(httpVAR+strlen(httpVAR)-1) = '\0'; //On vire les '\n' parce que sinon on reconnaitra rien
 				httpsVAR = calloc(1,strlen(httpsCST));
 				strcat(httpsVAR, httpsCST);
 				strcat(httpsVAR, line+2);
 				*(httpsVAR+strlen(httpsVAR)-1) = '\0';
-				starExprCase(chaine, httpVAR); 
-				starExprCase(chaine, httpsVAR);
+				if (starExprCase(chaine, httpVAR))
+				{
+				 	isRejet = 1; //Si on trouve cette expression (starExprCase renvoie 1 si on reconnait #1 dans #0), alors on signal que le motif doit être rejeté
+				} 
+				if (starExprCase(chaine, httpsVAR))
+				{
+				 	isRejet = 1; //Si on trouve cette expression (starExprCase renvoie 1 si on reconnait #1 dans #0), alors on signal que le motif doit être rejeté
+				} 
 				//free(httpVAR);
 				//free(httpsVAR);
 			}
 
 			else {
-				starExprCase(chaine, line2);
+				if (starExprCase(chaine, line2))
+				{
+				 	isRejet = 1;
+				} 
 			}
-			
+			/*
+			if (isRejet) 
+			{
+				fclose(infile);
+				return isRejet - isException; // Si le motif est reconnu, isRejet est à 1, si le motif etait une exception de rejet, isException est à 1, sinon 0
+				//
+			}
+			*/
 		}		
 		fclose(infile);
 	}
-	return 0;
+	return 0; //On a trouvé aucun motif parmis la liste à priorie
 }
 
 
