@@ -1,4 +1,6 @@
 #include "patternSearch.h"
+#include "socketutil.h"
+#include "util.h"
 
 int contient(char * chaine, char * strArray[], int i)
 {
@@ -49,7 +51,7 @@ int starExprCase(char* chaine, char * line2)
 			token = strtok(NULL, "*");
 			k++;
 		}
-		free(line2);
+		//free(line2);
 		// On cherche si les éléments parsés se retrouvent dans chaine
 		if (contient(chaine, strArray,k))
 		{
@@ -59,11 +61,11 @@ int starExprCase(char* chaine, char * line2)
 			returnValue = 0; // On a pas trouvé ce motif dans chaine
 		}
 		//free de notre tableau de string 
-		for (int j=0;j<k;j++)
+		/*for (int j=0;j<k;j++)
 		{
 			free(strArray[j]);
 		}
-		return returnValue;
+		return returnValue;*/
 	}
 	else { // On a pas d'étoile est donc on considère l'expression
 		strArray[0] = malloc(strlen(line2));

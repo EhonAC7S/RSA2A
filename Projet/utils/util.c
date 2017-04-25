@@ -112,48 +112,4 @@ void addRequestLog(int socketClient, char type_req[], char request[]){
   }
 }
 
-void addVisitLog(char ip[]){
-  //On chercher si le client se trouve déjà dans le fichier
-  char current_ip[50];
-  int nb_visits, cursor = 1, written = 0;
-  //Des variables globales pour les pointeurs de fichiers
-  FILE *log_visits, *tmp;
 
-  //On replace le curseur au début du fichier
-  if((log_visits = fopen("./logs/log_visits", "r+")) == NULL){
-    perror("Erreur lors de l'ouverture du fichier logs/log_visits");
-    exit(1);
-  }
-
-  if((tmp = fopen("./logs/tmp", "w")) == NULL){
-    perror("Erreur lors de l'ouverture du fichier logs/tmp");
-    exit(1);
-  }
-
-  while(cursor != EOF){
-    cursor = fscanf(log_visits, "%s %d\n", current_ip, &nb_visits);
-    if(strcmp(ip, current_ip) == 0 && !written){
-      //On incrémente le compteur et on réécrit sur la ligne
-      fprintf(tmp, "%s %d\n", ip, ++nb_visits);
-      written = 1;
-    }else if(strcmp(ip, current_ip)){
-      //On ne retouche pas la ligne
-      fprintf(tmp, "%s %d\n", ip, nb_visits);
-    }
-  }
-
-  //Si on a atteint le fichier jusqu'au bout, on rajoute l'adresse
-  if(!written){
-    fprintf(tmp, "%s %d\n", ip, 1);
-  }
-
-  if(fclose(log_visits) != 0){
-    perror("Erreur lors de la fermeture de logs/log_visits");
-  }
-  if(fclose(tmp) != 0){
-    perror("Erreur lors de la fermeture de logs/tmp");
-  }
-
-  remove("./logs/log_visits");
-  rename("./logs/tmp", "./logs/log_visits");
-}
